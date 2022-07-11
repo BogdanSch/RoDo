@@ -15,6 +15,7 @@ namespace RoDo
         {
             InitializeComponent();
             taskSet = new TaskSet(pnlTasks, GetTasks());
+            taskSet.Draw();
         }
 
         private TaskSet taskSet;
@@ -74,6 +75,20 @@ namespace RoDo
         private void RoDo_FormClosing(object sender, FormClosingEventArgs e)
         {
             SaveTasks();
+        }
+
+        public void RemoveText(object sender, EventArgs e)
+        {
+            if (tbInput.Text == "Enter your task here...")
+            {
+                tbInput.Text = "";
+            }
+        }
+
+        public void AddText(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(tbInput.Text))
+                tbInput.Text = "Enter your task here...";
         }
     }
 }

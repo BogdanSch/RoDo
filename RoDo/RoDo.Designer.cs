@@ -71,9 +71,9 @@
             // bCreate
             // 
             this.bCreate.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.bCreate.Location = new System.Drawing.Point(157, 20);
+            this.bCreate.Location = new System.Drawing.Point(179, 20);
             this.bCreate.Name = "bCreate";
-            this.bCreate.Size = new System.Drawing.Size(80, 29);
+            this.bCreate.Size = new System.Drawing.Size(58, 29);
             this.bCreate.TabIndex = 1;
             this.bCreate.Text = "Add";
             this.bCreate.UseVisualStyleBackColor = true;
@@ -84,9 +84,11 @@
             this.tbInput.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.tbInput.Location = new System.Drawing.Point(3, 20);
             this.tbInput.Name = "tbInput";
-            this.tbInput.Size = new System.Drawing.Size(148, 29);
+            this.tbInput.Size = new System.Drawing.Size(170, 29);
             this.tbInput.TabIndex = 0;
-            this.tbInput.Text = "Your task: ";
+            this.tbInput.Text = "Enter your task here...";
+            this.tbInput.GotFocus += new System.EventHandler(this.RemoveText);
+            this.tbInput.LostFocus += new System.EventHandler(this.AddText);
             // 
             // pnlTasks
             // 
