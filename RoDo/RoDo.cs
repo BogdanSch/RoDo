@@ -14,11 +14,10 @@ namespace RoDo
         public RoDo()
         {
             InitializeComponent();
-            tasks = GetTasks();
-            CreateTasksForm(tasks);
+            taskSet = new TaskSet(pnlTasks, GetTasks());
         }
 
-        private List<Task> tasks = new List<Task>();
+        private TaskSet taskSet;
 
         private List<Task> GetTasks()
         {
@@ -40,11 +39,25 @@ namespace RoDo
         {
             using (StreamWriter writer = new StreamWriter("tasks.txt"))
             {
-                foreach (Task task in tasks)
+                foreach (Task task in taskSet.Tasks)
                 {
                     writer.WriteLine($"{task.TaskText}, {task.IsDone}");
                 }
             }
+        }
+        private void bCreate_Click(object sender, EventArgs e)
+        {
+            string taskText = tbInput.Text;
+            if(IsValide(taskText))
+            {
+                Task task = new Task(taskText, false);
+                taskSet.Add(task);
+            }
+        }
+        private bool IsValide(string taskText)
+        {
+            if (taskText != "") return true;
+            return false;
         }
         private int GetCountTasks()
         {
@@ -57,32 +70,6 @@ namespace RoDo
                 }
             }
             return count;
-        }
-        private void bCreate_Click(object sender, EventArgs e)
-        {
-            string taskText = tbInput.Text;
-            if(IsValide(taskText))
-            {
-                Task task = new Task(taskText, false);
-                tasks.Add(task);
-                CreateTaskForm(task);
-            }
-        }
-        private bool IsValide(string taskText)
-        {
-            if (taskText != "") return true;
-            return false;
-        }
-        private void CreateTasksForm(List<Task> tasks)
-        {
-            for (int i = 0; i < tasks.Count; i++)
-            {
-
-            }
-        }
-        private void CreateTaskForm(Task task)
-        {
-            
         }
         private void RoDo_FormClosing(object sender, FormClosingEventArgs e)
         {

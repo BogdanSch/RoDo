@@ -59,6 +59,7 @@
             // 
             // pnlCreate
             // 
+            this.pnlCreate.BackColor = System.Drawing.SystemColors.ControlDark;
             this.pnlCreate.Controls.Add(this.bCreate);
             this.pnlCreate.Controls.Add(this.tbInput);
             this.pnlCreate.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -81,9 +82,9 @@
             // tbInput
             // 
             this.tbInput.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.tbInput.Location = new System.Drawing.Point(9, 20);
+            this.tbInput.Location = new System.Drawing.Point(3, 20);
             this.tbInput.Name = "tbInput";
-            this.tbInput.Size = new System.Drawing.Size(142, 29);
+            this.tbInput.Size = new System.Drawing.Size(148, 29);
             this.tbInput.TabIndex = 0;
             this.tbInput.Text = "Your task: ";
             // 
@@ -106,13 +107,16 @@
             // 
             // lInfo
             // 
-            this.lInfo.AutoSize = true;
-            this.lInfo.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.lInfo.Location = new System.Drawing.Point(19, 20);
+            this.lInfo.BackColor = System.Drawing.SystemColors.ControlDark;
+            this.lInfo.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lInfo.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.lInfo.ForeColor = System.Drawing.Color.White;
+            this.lInfo.Location = new System.Drawing.Point(0, 0);
             this.lInfo.Name = "lInfo";
-            this.lInfo.Size = new System.Drawing.Size(61, 21);
+            this.lInfo.Size = new System.Drawing.Size(548, 70);
             this.lInfo.TabIndex = 0;
             this.lInfo.Text = "My day";
+            this.lInfo.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // RoDo
             // 
@@ -127,7 +131,6 @@
             this.pnlCreate.ResumeLayout(false);
             this.pnlCreate.PerformLayout();
             this.pnlGreetings.ResumeLayout(false);
-            this.pnlGreetings.PerformLayout();
             this.ResumeLayout(false);
 
         }
