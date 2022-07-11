@@ -57,8 +57,9 @@ namespace RoDo
         }
         private bool IsValide(string taskText)
         {
-            if (taskText != "") return true;
-            return false;
+            return taskText != "" &&
+                !string.IsNullOrWhiteSpace(taskText) &&
+                taskSet.Tasks.Find(t => t.TaskText.Trim() == taskText.Trim()) == null;
         }
         private int GetCountTasks()
         {
