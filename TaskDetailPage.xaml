@@ -20,7 +20,7 @@
         </StackLayout>
 
         <StackLayout>
-            <Label Text="Hint:"
+            <Label Text="Note:"
                 FontSize="16"
                 Margin="0,0,0,5"/>
             

@@ -1,34 +1,58 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using RoDo.Data;
 using RoDo.Model;
 using System.Collections.ObjectModel;
 
 namespace RoDo.ViewModel;
 
-[QueryProperty("TaskItem", "TaskItem")]
+[QueryProperty("TaskItemId", "taskItemId")]
 public partial class TaskDetailViewModel : ObservableObject
 {
-    private MainViewModel _mainViewModel;
-    private ObservableCollection<TaskItem> _taskItems;
+    private int _taskItemId;
 
     [ObservableProperty]
-    private TaskItem _taskItem;
+    private string _title;
+    [ObservableProperty]
+    private string _note;
+    [ObservableProperty]
+    private bool _isDone;
 
-    public TaskDetailViewModel(MainViewModel mainViewModel)
+    public int TaskItemId
     {
-        _mainViewModel = mainViewModel;
-        _taskItems = _mainViewModel.TaskItems;
-    }
-    public void SaveTaskItemData()
-    {
-        if (TaskItem != null)
+        set
         {
-            int index = _taskItems.IndexOf(_taskItems.FirstOrDefault(item => item.Id == TaskItem.Id));
-            if (index >= 0)
+            _taskItemId = value;
+            LoadTaskItem();
+        }
+    }
+
+    private async void LoadTaskItem()
+    {
+        using (var db = new AppDbContext())
+        {
+            var taskItem = await db.TaskItems.FindAsync(_taskItemId);
+
+            if (taskItem != null)
             {
-                _taskItems[index].Title = TaskItem.Title;
-                _taskItems[index].Note = TaskItem.Note;
-                _taskItems[index].IsDone = TaskItem.IsDone;
+                Title = taskItem.Title;
+                Note = taskItem.Note;
+                IsDone = taskItem.IsDone;
+            }
+        }
+    }
+
+    private async Task SaveTaskItemData()
+    {
+        using (var db = new AppDbContext())
+        {
+            var taskItem = await db.TaskItems.FindAsync(_taskItemId);
+            if (taskItem != null)
+            {
+                taskItem.Title = Title;
+                taskItem.Note = Note;
+                taskItem.IsDone = IsDone;
+                await db.SaveChangesAsync();
             }
         }
     }
@@ -36,18 +60,22 @@ public partial class TaskDetailViewModel : ObservableObject
     [RelayCommand]
     private async Task GoBack()
     {
-        SaveTaskItemData();
+        await SaveTaskItemData();
         await Shell.Current.GoToAsync("..");
     }
 
     [RelayCommand]
     private async Task RemoveTask()
     {
-        if (TaskItem != null)
+        using (var db = new AppDbContext())
         {
-            _taskItems.Remove(TaskItem);
-            TaskItem = null;
+            var taskItem = await db.TaskItems.FindAsync(_taskItemId);
+            if (taskItem != null)
+            {
+                db.TaskItems.Remove(taskItem);
+                await db.SaveChangesAsync();
+            }
+            await GoBack();
         }
-        await GoBack();
     }
 }
