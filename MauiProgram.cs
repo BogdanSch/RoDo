@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using RoDo.Data;
 using RoDo.ViewModel;
 
 namespace RoDo;
@@ -16,7 +15,6 @@ public static class MauiProgram
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
 				fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
 			});
-        builder.Services.AddDbContext<AppDbContext>();
 
         builder.Services.AddSingleton<MainPage>();
         builder.Services.AddSingleton<MainViewModel>();

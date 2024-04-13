@@ -1,15 +1,28 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using RoDo.Data;
 using RoDo.Model;
 using System.Collections.ObjectModel;
+using System.Text.Json;
 
 namespace RoDo.ViewModel;
 
-[QueryProperty("TaskItemId", "taskItemId")]
+[QueryProperty("TaskItemId", "TaskItemId")]
 public partial class TaskDetailViewModel : ObservableObject
 {
+    private ObservableCollection<TaskItem> _taskItems;
+    private TaskItem _taskItem;
+
+    [ObservableProperty]
     private int _taskItemId;
+
+    public TaskDetailViewModel(MainViewModel mainViewModel) 
+    {
+        _taskItems = LoadTasks();
+        _taskItem = GetTargetTaskItem();
+        Title = _taskItem.Title;
+        Note = _taskItem.Note;
+        IsDone = _taskItem.IsDone;
+    }
 
     [ObservableProperty]
     private string _title;
@@ -18,64 +31,59 @@ public partial class TaskDetailViewModel : ObservableObject
     [ObservableProperty]
     private bool _isDone;
 
-    public int TaskItemId
+    private TaskItem GetTargetTaskItem()
     {
-        set
+        TaskItem targetTaskItem = _taskItems.FirstOrDefault(item => item.Id == TaskItemId);
+        if (targetTaskItem != null)
         {
-            _taskItemId = value;
-            LoadTaskItem();
+            return targetTaskItem;
+        }
+        return null;
+    }
+    private ObservableCollection<TaskItem> LoadTasks()
+    {
+        string dataFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "tasks.json");
+
+        if (File.Exists(dataFilePath))
+        {
+            string json = File.ReadAllText(dataFilePath);
+            return JsonSerializer.Deserialize<ObservableCollection<TaskItem>>(json) ?? new ObservableCollection<TaskItem>();
+        }
+        else
+        {
+            return new ObservableCollection<TaskItem>();
         }
     }
-
-    private async void LoadTaskItem()
+    private async Task SaveTasks()
     {
-        using (var db = new AppDbContext())
+        if(TaskItemId > 0)
         {
-            var taskItem = await db.TaskItems.FindAsync(_taskItemId);
-
-            if (taskItem != null)
-            {
-                Title = taskItem.Title;
-                Note = taskItem.Note;
-                IsDone = taskItem.IsDone;
-            }
-        }
-    }
-
-    private async Task SaveTaskItemData()
-    {
-        using (var db = new AppDbContext())
-        {
-            var taskItem = await db.TaskItems.FindAsync(_taskItemId);
-            if (taskItem != null)
-            {
-                taskItem.Title = Title;
-                taskItem.Note = Note;
-                taskItem.IsDone = IsDone;
-                await db.SaveChangesAsync();
-            }
+            string dataFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "tasks.json");
+            string json = JsonSerializer.Serialize(_taskItems, new JsonSerializerOptions { WriteIndented = true });
+            await File.WriteAllTextAsync(dataFilePath, json);
         }
     }
 
     [RelayCommand]
     private async Task GoBack()
     {
-        await SaveTaskItemData();
+        await SaveTasks();
         await Shell.Current.GoToAsync("..");
     }
 
     [RelayCommand]
     private async Task RemoveTask()
     {
-        using (var db = new AppDbContext())
+        if (TaskItemId > 0)
         {
-            var taskItem = await db.TaskItems.FindAsync(_taskItemId);
-            if (taskItem != null)
+            TaskItem taskToRemove = _taskItems.FirstOrDefault(item => item.Id == TaskItemId);
+            if (taskToRemove != null)
             {
-                db.TaskItems.Remove(taskItem);
-                await db.SaveChangesAsync();
+                _taskItems.Remove(taskToRemove);
+                await SaveTasks();
+                TaskItemId = 0;
             }
-            await GoBack();
         }
+        await GoBack();
     }
 }

@@ -1,14 +1,16 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.EntityFrameworkCore;
-using RoDo.Data;
 using RoDo.Model;
 using System.Collections.ObjectModel;
+using System.Text.Json;
 
 namespace RoDo.ViewModel;
 
 public partial class MainViewModel : ObservableObject
 {
+
+    private readonly string _dataFilePath;
+
     [ObservableProperty]
     private ObservableCollection<TaskItem> _taskItems;
 
@@ -17,42 +19,46 @@ public partial class MainViewModel : ObservableObject
     public MainViewModel()
     {
         TaskItems = new ObservableCollection<TaskItem>();
-        LoadTaskItems();
+        _dataFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "tasks.json");
+        LoadTasks();
     }
-    private async void LoadTaskItems()
+    private void LoadTasks()
     {
-        using var db = new AppDbContext();
-        var taskItems = await db.TaskItems.ToListAsync();
-        TaskItems = new ObservableCollection<TaskItem>(taskItems);
-    }
-
-    [RelayCommand]
-    private async Task AddTask()
-    {
-        if (string.IsNullOrEmpty(InputText))
-            return;
-
-        using (var db = new AppDbContext())
+        if (File.Exists(_dataFilePath))
         {
-            db.TaskItems.Add(new TaskItem { Title = InputText });
-            await db.SaveChangesAsync();
+            string json = File.ReadAllText(_dataFilePath);
+            TaskItems = JsonSerializer.Deserialize<ObservableCollection<TaskItem>>(json) ?? new ObservableCollection<TaskItem>();
         }
+        else
+        {
+            TaskItems = new ObservableCollection<TaskItem>();
+        }
+    }
 
-        InputText = string.Empty;
+    private void SaveTasks()
+    {
+        string json = JsonSerializer.Serialize(TaskItems, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(_dataFilePath, json);
     }
 
     [RelayCommand]
-    private async Task RemoveTask(TaskItem taskItem)
+    private void AddTask()
     {
-        using (var db = new AppDbContext())
+        if (!string.IsNullOrEmpty(InputText))
         {
-            var itemToRemove = await db.TaskItems.FindAsync(taskItem.Id);
+            TaskItems.Add(new TaskItem(InputText));
+            InputText = string.Empty;
+            SaveTasks();
+        }
+    }
 
-            if (itemToRemove != null)
-            {
-                db.TaskItems.Remove(itemToRemove);
-                await db.SaveChangesAsync();
-            }
+    [RelayCommand]
+    private void RemoveTask(TaskItem taskItem)
+    {
+        if (TaskItems.Contains(taskItem))
+        {
+            TaskItems.Remove(taskItem);
+            SaveTasks();
         }
     }
 
